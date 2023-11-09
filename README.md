@@ -76,7 +76,3 @@ Purpose of each module in your project.
 - `rs_ratio_module.R`: Processes R-S Ratio data.
 - `vdj_module.R`: Processes V(D)J recombination data.
 
-
-## License
-
-This project is licensed under the LUMC SASC License.
