@@ -1,4 +1,4 @@
-# RShiny Application to extend functionality of ARGalaxy
+# Interactive user-friendly interface for B-cell receptor repertoire analysis: extending the functionality of Antigen Receptor Galaxy
 
 [![GitHub](https://img.shields.io/badge/GitHub-hartogs11-blue)](https://github.com/hartogs11/BAFSTU)
 
