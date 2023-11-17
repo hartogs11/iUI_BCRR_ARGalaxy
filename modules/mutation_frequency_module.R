@@ -14,6 +14,17 @@ read_mut_freq_data <- function(path) {
     if (startsWith(Sample, "uploaded_data/")) {
       Sample <- gsub("uploaded_data/", "", Sample)
     }
+    
+    #Check if Sample contains an underscore
+    if (grepl("_", Sample)) {
+      #Split Sample into Sample and Timepoint
+      sample_parts <- strsplit(Sample, "_")[[1]]
+      Sample <- sample_parts[1]
+      Timepoint <- sample_parts[2]
+    } else {
+      Timepoint <- NA
+    }
+    
     Immunoglobulin <- switch(
       substr(file, i + 1, i + 1),
       "a" = "IgA",
@@ -27,16 +38,15 @@ read_mut_freq_data <- function(path) {
     }
     
     df_add <- df_add %>%
-      mutate(Sample = Sample, Immunoglobulin = Immunoglobulin, Group = Group) %>%
-      select(Sample, Immunoglobulin, Group, everything())
+      mutate(Sample = Sample, Timepoint = Timepoint, Immunoglobulin = Immunoglobulin, Group = Group) %>%
+      select(Sample, Timepoint, Immunoglobulin, Group, everything())
     
     df_mut_freq <- bind_rows(df_mut_freq, df_add)
   }
   
   df_mut_freq <- df_mut_freq %>%
-    select(Sample, Group, Immunoglobulin, `Sequence.ID`, `percentage_mutations`, `best_match`, `VRegionMutations`, `VRegionNucleotides`)
+    select(Sample, Timepoint, Group, Immunoglobulin, `Sequence.ID`, `percentage_mutations`, `best_match`, `VRegionMutations`, `VRegionNucleotides`)
   df_mut_freq$percentage_mutations <- as.numeric(as.character(df_mut_freq$percentage_mutations))
   return(df_mut_freq)
 }
-
 

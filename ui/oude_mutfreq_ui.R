@@ -68,41 +68,34 @@ mutfreq_ui <- function() {
     fluidRow(
       column(
         width = 4,
-        # Grouping under a wellPanel with a title
-        wellPanel(
-          title = "Visualization Options",
-          selectInput(
-            inputId = "palette_mutfreq",
-            label = "Select Color Palette:",
-            choices = c("Set1", "Set2", "Set3", "Dark2"),
-            selected = "Dark2"
-          )
+        # Choose color palette for plot
+        selectInput(
+          inputId = "palette_mutfreq",
+          label = "Select Color Palette:",
+          choices = c("Set1", "Set2", "Set3", "Dark2"),
+          selected = "Dark2"
         )
       ),
       
       column(
         width = 4,
-        wellPanel(
-          title = "Visualization Options",
-          selectInput(
-            inputId = "xaxis_display_mutfreq",
-            label = "What should be displayed on the x-axis:",
-            choices = c("Groups", "Samples", "Timepoints"),
-            selected = "Samples"
-          )
+        # Option to select groups or samples on x-axis
+        selectInput(
+          inputId = "xaxis_display_mutfreq",
+          label = "What should be displayed on the x-axis:",
+          choices = c("Groups", "Samples", "Timepoints"),
+          selected = "Samples"
         )
       ),
       
       column(
         width = 4,
-        wellPanel(
-          title = "Visualization Options",
-          sliderInput(
-            inputId = "y_slider_mutfreq",
-            label = "Custom Y-Axis Slider:",
-            min = 0, max = 100,
-            value = c(0, 50)
-          )
+        # Custom y-axis
+        sliderInput(
+          inputId = "y_slider_mutfreq",
+          label = "Custom Y-Axis Slider:",
+          min = 0, max = 100,
+          value = c(0, 50)
         )
       )
     ),
@@ -110,26 +103,31 @@ mutfreq_ui <- function() {
     # Upload options
     fluidRow(
       column(
-        width = 12,
-        wellPanel(
-          title = "Upload Options",
-          fileInput("zip_mutfreq", "Upload ZIP file:", accept = ".zip"),
-          radioButtons(
-            "renaming_option_mutfreq",
-            "Choose an upload option:",
-            choices = c("Without Renaming", "With Renaming"),
-            selected = "Without Renaming"
-          ),
-          textInput("new_filenames_mutfreq", "New Filenames (comma-separated):", ""),
-          actionButton("upload_mutfreq", "Upload Data")
+        width = 6,
+        # Upload ZIP file function
+        fileInput("zip_mutfreq", "Upload ZIP file:", accept = ".zip")
+      ),
+      
+      column(
+        width = 6,
+        # Radio buttons to choose the upload option
+        radioButtons(
+          "renaming_option_mutfreq",
+          "Choose an upload option:",
+          choices = c("Without Renaming", "With Renaming"),
+          selected = "Without Renaming"
         )
       )
     ),
     
+    # Add a text input for users to specify new filenames
+    textInput("new_filenames_mutfreq", "New Filenames (comma-separated):", ""),
+    
+    # Upload button
+    actionButton("upload_mutfreq", "Upload Data"),
+    
     # Statistics report
-    wellPanel(
-      title = "Statistics Report",
-      verbatimTextOutput("stats_mutfreq")
-    )
+    verbatimTextOutput("stats_mutfreq")
+    
   )
 }

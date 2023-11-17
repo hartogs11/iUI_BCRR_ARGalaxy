@@ -2,7 +2,7 @@
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
-library(tidyverse)6
+library(tidyverse)
 library(dplyr)
 library(plotly)
 library(remotes)

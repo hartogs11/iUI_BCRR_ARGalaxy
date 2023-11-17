@@ -7,6 +7,7 @@ df_mut_freq <- read_mut_freq_data("Data/Frequency_mutation")
 # Generating inputdata voor Mutation Frequency visualization
 Sample_names_mutfreq <- unique(df_mut_freq$Sample)
 Group_names_mutfreq <- unique(df_mut_freq$Group)
+Timepoint_names_mutfreq <- unique(df_mut_freq$Timepoint)
 Immunoglobulin_names_mutfreq <- c("IgA", "IgG", "IgM", "Naive IgM", "Memory IgM")
 
 # Initialize a reactiveVal to track the uploaded data
@@ -22,9 +23,15 @@ mutfreq_server <- function(input, output, session) {
       session,"group_mutfreq", choices = Group_names_mutfreq,
       selected = if(input$all_groups_mutfreq) Group_names_mutfreq
     )
+    
     updateCheckboxGroupButtons(
       session, "sample_mutfreq", choices = Sample_names_mutfreq,
       selected = if(input$all_samples_mutfreq) Sample_names_mutfreq
+    )
+    
+    updateCheckboxGroupButtons(
+      session, "timepoint_mutfreq", choices = Timepoint_names_mutfreq,
+      selected = if(input$all_timepoints_mutfreq) Timepoint_names_mutfreq
     )
   })
   
@@ -42,7 +49,8 @@ mutfreq_server <- function(input, output, session) {
       filter_options(list(
         immunoglobulin = unique(df_uploaded$Immunoglobulin),
         group = unique(df_uploaded$Group),
-        sample = unique(df_uploaded$Sample)
+        sample = unique(df_uploaded$Sample),
+        timepoint = unique(df_uploaded$Timepoint)
       ))
       
       # Clear the upload fields
@@ -62,6 +70,9 @@ mutfreq_server <- function(input, output, session) {
       
       # Update checkboxGroupButtons for sample
       updateCheckboxGroupButtons(session, "sample_mutfreq", choices = filter_options()$sample)
+      
+      # Update checkboxGroupButtons for timepoint
+      updateCheckboxGroupButtons(session, "timepoint_mutfreq", choices = filter_options()$timepoint)
     }
   })
   
@@ -77,24 +88,64 @@ mutfreq_server <- function(input, output, session) {
         filter(Immunoglobulin %in% input$immunoglobulin_mutfreq) %>%
         filter(Group %in% input$group_mutfreq) %>%
         filter(Sample %in% input$sample_mutfreq)
+      
+      # Check if timepoints are selected, if yes, apply filter
+      if (!is.null(input$timepoint_mutfreq)) {
+        df_filtered <- df_filtered %>%
+          filter(Timepoint %in% input$timepoint_mutfreq)
+      }
+      
       return(df_filtered)
     }
   })
   
+  
   #Looks what immunoglobulin is chosen and makes the corresponding plot title
-  plotTitle_mutfreq <- function(){
-    if (input$immunoglobulin_mutfreq == "IgM")
-      title_mut_freq <- "Somatic hypermutation frequency of IgM per sample"
-    else if (input$immunoglobulin_mutfreq == "IgA")
-      title_mut_freq <- "Somatic hypermutation frequency of IgA per sample"
-    else if (input$immunoglobulin_mutfreq == "IgG")
-      title_mut_freq <- "Somatic hypermutation frequency of IgG per sample"
-    else if (input$immunoglobulin_mutfreq == "Naive IgM")
-      title_mut_freq <- "Somatic hypermutation frequency of Naive IgM per sample"
-    else if (input$immunoglobulin_mutfreq == "Memory IgM")
-      title_mut_freq <- "Somatic hypermutation frequency of Memory IgM per sample"
+  # Looks what immunoglobulin is chosen and makes the corresponding plot title
+  plotTitle_mutfreq <- function() {
+    immunoglobulin <- input$immunoglobulin_mutfreq
+    x_axis <- input$xaxis_display_mutfreq
+    
+    title_mut_freq <- switch(
+      immunoglobulin,
+      "IgM" = {
+        switch(
+          x_axis,
+          "Groups" = "Somatic hypermutation frequency of IgM per group",
+          "Samples" = "Somatic hypermutation frequency of IgM per sample",
+          "Timepoints" = "Somatic hypermutation frequency of IgM per timepoint"
+        )
+      },
+      "IgA" = {
+        switch(
+          x_axis,
+          "Groups" = "Somatic hypermutation frequency of IgA per group",
+          "Samples" = "Somatic hypermutation frequency of IgA per sample",
+          "Timepoints" = "Somatic hypermutation frequency of IgA per timepoint"
+        )
+      },
+      "Naive IgM" = {
+        switch(
+          x_axis,
+          "Groups" = "Somatic hypermutation frequency of Naive IgM per group",
+          "Samples" = "Somatic hypermutation frequency of Naive IgM per sample",
+          "Timepoints" = "Somatic hypermutation frequency of Naive IgM per timepoint"
+        )
+      },
+      "IgG" = {
+        switch(
+          x_axis,
+          "Groups" = "Somatic hypermutation frequency of IgG per group",
+          "Samples" = "Somatic hypermutation frequency of IgG per sample",
+          "Timepoints" = "Somatic hypermutation frequency of IgG per timepoint"
+        )
+      },
+      "default" = "Somatic hypermutation frequency per sample"
+    )
+    
     return(title_mut_freq)
   }
+  
   
   #Retrieves y axis slider values
   y_slider_values <- reactive({
@@ -116,7 +167,9 @@ mutfreq_server <- function(input, output, session) {
       group_by(Sample, Group, Immunoglobulin) %>%
       mutate(
         median_sample = median(percentage_mutations),
-        mean_sample = mean(percentage_mutations)
+        mean_sample = mean(percentage_mutations),
+        num_timepoints = n_distinct(Timepoint),
+        timepoints = paste(unique(Timepoint), collapse = ", ")
       ) %>%
       group_by(Group, Immunoglobulin) %>%
       mutate(
@@ -126,12 +179,12 @@ mutfreq_server <- function(input, output, session) {
       ) %>%
       ungroup()
     
-    # Determine which groups of samples to display on the x-axis based on user choice
-    x_axis_variable <- if (input$xaxis_display_mutfreq == "Samples") {
-      ~Sample
-    } else {
-      ~Group
-    }
+    #Determine which groups of samples or timepoints to display on the x-axis based on user choice
+    x_axis_variable <- switch(input$xaxis_display_mutfreq,
+                              "Groups" = ~Group,
+                              "Samples" = ~Sample,
+                              "Timepoints" = ~Timepoint
+    )
     
     #Makes the violin plots, including the hover function
     p <- dataForPlot %>%
@@ -142,14 +195,26 @@ mutfreq_server <- function(input, output, session) {
         type = "violin",
         color = ~Group,
         colors = c(selected_palette),
-        box = list(visible = T),
-        meanline = list(visible = T),
+        box = list(visible = T, hoverinfo = "none"),
+        meanline = list(visible = T, hoverinfo = "none"),
         spanmode = "hard",
+        hoverinfo = "text",
         text = ~paste(
           if (input$xaxis_display_mutfreq == "Samples") {
-            paste("Sample:", Sample, "<br>Mean Sample:", round(mean_sample, 2), "<br>Median Sample:", round(median_sample, 2))
+            paste("Sample:", Sample, 
+                  "<br>Mean Sample:", round(mean_sample, 2), 
+                  "<br>Median Sample:", round(median_sample, 2),
+                  "<br>Number of Timepoints:", num_timepoints,
+                  "<br>Timepoints:", timepoints)
+          } else if (input$xaxis_display_mutfreq == "Timepoints") {
+            paste("Sample:", Sample,
+                  "<br>Mean Sample:", round(mean_sample, 2),
+                  "<br>Timepoint:", Timepoint)
           } else {
-            paste("Group:", Group, "<br>Mean Group:", round(mean_group, 2), "<br>Median Group:", round(median_group, 2), "<br>Number of Samples in Group:", num_samples_in_group)
+            paste("Group:", Group, 
+                  "<br>Mean Group:", round(mean_group, 2), 
+                  "<br>Median Group:", round(median_group, 2), 
+                  "<br>Number of Samples in Group:", num_samples_in_group)
           }
         )
       )
@@ -173,6 +238,9 @@ mutfreq_server <- function(input, output, session) {
     if (input$xaxis_display_mutfreq == "Samples") {
       p <- p %>%
         layout(xaxis = list(title = "Sample"))
+    } else if (input$xaxis_display_mutfreq == "Timepoints"){
+      p <- p %>%  
+        layout(xaxis = list(title = "Timepoint"))
     } else {
       p <- p %>%
         layout(xaxis = list(title = "Group"))
@@ -180,7 +248,7 @@ mutfreq_server <- function(input, output, session) {
     p
   })
   
-  #Statistics Report
+  # Statistics Report
   output$stats_mutfreq <- renderPrint({
     dataForStats <- plotData_mutfreq()
     
@@ -188,8 +256,13 @@ mutfreq_server <- function(input, output, session) {
       return(NULL)
     }
     
+    x_axis_variable <- switch(input$xaxis_display_mutfreq,
+                              "Groups" = "Group",
+                              "Samples" = "Sample",
+                              "Timepoints" = "Timepoint")
+    
     stats <- dataForStats %>%
-      group_by(Group, Immunoglobulin) %>%
+      group_by(!!sym(x_axis_variable), Immunoglobulin) %>%
       summarize(
         Median = median(percentage_mutations),
         Mean = mean(percentage_mutations),
@@ -205,7 +278,8 @@ mutfreq_server <- function(input, output, session) {
     print(stats)
     
     # Perform ANOVA
-    anova_results <- aov(percentage_mutations ~ Group, data = dataForStats)
+    anova_formula <- as.formula(paste("percentage_mutations ~ ", x_axis_variable))
+    anova_results <- aov(anova_formula, data = dataForStats)
     cat("\nANOVA results:\n")
     print(summary(anova_results))
     
@@ -220,12 +294,13 @@ mutfreq_server <- function(input, output, session) {
       posthoc_anova <- TukeyHSD(anova_results)
       print(posthoc_anova)
       
-    }
-    else {
+    } else {
       cat("\n p value of ANOVA test > 0.05\n")
       cat("Null Hypothesis (H0): There is no significant difference between the means of any two groups.")
     }
   })
+  
+  
 }
 
 

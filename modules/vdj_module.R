@@ -34,4 +34,10 @@ read_vdj_recombination_data <- function(file) {
   return(df_occurence)
 }
 
-#df_recombination <- read_vdj_recombination_data("Data/VDJ_genes_timepoints/ClonalityComplete.txt")
+df_recombination <- read_vdj_recombination_data("Data/VDJ_genes_timepoints/ClonalityComplete.txt")
+
+# Maak een subdataframe voor alleen sample AIH1
+df_AIH1 <- df_recombination[df_recombination$Sample == "AIH1", ]
+
+
+
