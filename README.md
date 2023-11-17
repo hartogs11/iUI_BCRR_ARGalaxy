@@ -1,6 +1,6 @@
 # Interactive user-friendly interface for B-cell receptor repertoire analysis: extending the functionality of Antigen Receptor Galaxy
 
-[![GitHub](https://img.shields.io/badge/GitHub-hartogs11-blue)](https://github.com/hartogs11/BAFSTU)
+[![GitHub](https://img.shields.io/badge/GitHub-hartogs11-blue)](https://github.com/hartogs11/iUI_BCRR_ARGalaxy)
 
 ## Project Description
 
@@ -13,6 +13,7 @@ The project is a web-based data visualization and analysis tool built using R an
 - [Usage](#usage)
 - [R Packages](#r-packages)
 - [Modules](#modules)
+- [User Manual](#manual)
 
 
 ## Folder Structure
@@ -76,3 +77,29 @@ Purpose of each module in your project.
 - `rs_ratio_module.R`: Processes R-S Ratio data.
 - `vdj_module.R`: Processes V(D)J recombination data.
 
+## User Manual
+### Somatic Hypermutation Frequency Visualization
+The `mutfreq_ui.R` and `mutfreq_server.R` files handle the user interface and server logic for the Mutation Frequency visualization. This section provides a brief user manual for interacting with this specific module.
+
+#### Filter Options
+- **Immunoglobulin:** Choose the immunoglobulin (e.g., IgA, IgG, IgM, Naive IgM, Memory IgM) for analysis.
+- **Groups to Show:** Select the groups to display in the visualization.
+- **Samples to Show:** Choose specific samples for visualization.
+- **Timepoints to Show:** Select timepoints for visualization. You can choose to display all timepoints or select specific ones.
+
+#### Visualization Options
+- **Color Palette:** Choose a color-blind-friendly color palette for the visualization (e.g., Set1, Set2, Set3, Dark2).
+- **X-Axis Display:** Decide what information to display on the x-axis (Groups, Samples, or Timepoints).
+- **Custom Y-Axis Slider:** Adjust the Y-axis range using the slider.
+
+#### Upload Options
+- **Upload ZIP file:** Upload a ZIP file containing mutation frequency data. The application will extract and process the data. 
+- **Choose an Upload Option:** Select whether to upload data with or without renaming the files.
+- **New Filenames:** If renaming, provide new filenames (comma-separated).
+- **Upload Data:** Click to initiate the data upload and processing.
+
+#### Visualization
+The main panel displays a violin plot representing the mutation frequency. The plot can be customized based on the chosen filter and visualization options.
+
+#### Statistics Report
+This section provides detailed statistics for the selected data, including median, mean, standard deviation, variance, count, and quartiles. Additionally, the ANOVA results are displayed, and post-hoc Tukey HSD tests are performed if the ANOVA is significant.
