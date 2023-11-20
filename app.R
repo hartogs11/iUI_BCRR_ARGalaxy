@@ -30,7 +30,6 @@ shinyApp(
     dashboardHeader(title = "Dashboard"),
     dashboardSidebar(
       sidebarMenu(
-        menuItem("General information", tabName = "info", icon = icon("info")),
         menuItem("SHM frequency", tabName = "mutfreq"),
         menuItem("R-S Ratio of FR1 and CDR3 frequency", tabName = "rsratio"),
         menuItem("V(D)J Recombination Viewer", tabName = "vdj")
