@@ -4,7 +4,7 @@
 
 ## Project Description
 
-The project is a web-based data visualization and analysis tool built using R and Shiny. It aims to provide users with interactive visualizations and insights into three different biological datasets related to V(D)J recombination, R-S ratio, and mutation frequency. The application helps researchers and biologists explore these datasets to gain a deeper understanding of the underlying data patterns and relationships.
+The project is a web-based data visualization and analysis tool built using R and Shiny. It aims to provide users with interactive visualizations and insights into three different biological datasets related to V(D)J recombination, R-S ratio, and somatic hypermutation frequency. The application helps researchers and biologists explore these datasets to gain a deeper understanding of the underlying data patterns and relationships.
 
 ## Table of Contents
 
