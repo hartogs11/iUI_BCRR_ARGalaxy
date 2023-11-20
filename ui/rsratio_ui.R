@@ -53,12 +53,6 @@ rsratio_ui <- function() {
               value = FALSE
             ),
             
-            selectInput(
-              inputId = "violin_rsrat",
-              label = "Overlayed, grouped, or splitted violin plots (only works with groups on xaxis):",
-              choices = c("Overlayed", "Grouped", "Splitted")
-            ),
-            
             circle = TRUE,
             icon = icon("gear"), width = "300px",
             tooltip = tooltipOptions(title = "Click to see filter options!")
@@ -66,46 +60,77 @@ rsratio_ui <- function() {
           #Visualization
           plotlyOutput("RSRatio"),
           
-          #Upload ZIP file function
-          fileInput("zip_rsratio", "Upload ZIP file:", accept = ".zip"),
           
-          #Radio buttons to choose the upload option
-          radioButtons(
-            "renaming_option_rsratio",
-            "Choose an upload option:",
-            choices = c("Without Renaming", "With Renaming"),
-            selected = "Without Renaming"
-          ),
-          # Add a text input for users to specify new filenames
-          textInput("new_filenames_rsratio", "New Filenames (comma-separated):", ""),
+          #Additional visualization options
+          fluidRow(
+            column(
+              width = 4,
+              #Grouping under a wellPanel with a title
+              title = "Visualization Options",
+              # Color pickers for FR and CDR
+              textInput("color_fr", "Color for FR (hex):", value = "#FFC20A"),
+              textInput("color_cdr", "Color for CDR (hex):", value = "#0C7BDC")
+            ),
           
-          #Upload button
-          actionButton("upload_rsratio", "Upload Data"),
-          
-          #Choose color palette for plot
-          selectInput(
-            inputId = "palette_rsratio",
-            label = "Select Color Palette:",
-            choices = c("Set1", "Set2", "Set3", "Dark2", "Paired"),
-            selected = "Dark2"
-          ),
-          #Option to select groups or samples on xaxis
-          selectInput(
-            inputId = "xaxis_display_rsratio",
-            label = "What should be displayed on the x-axis:",
-            choices = c("Groups", "Samples"),
-            selected = "Groups"),
-          
-          #Custom y-axis
-          sliderInput(
-            inputId = "y_slider_rsratio",
-            label = "Custom Y-Axis Slider:",
-            min = 0, max = 100,
-            value = c(0, 10)
+          column(
+            width = 4,
+            wellPanel(
+              title = "Visualization Options",
+              #Boxplot visualization options
+              selectInput(
+                inputId = "display_type",
+                label = "Overlayed, or splitted boxplots:",
+                choices = c("Overlayed", "Grouped"),
+                selected = "Overlayed"
+              )
+            )
           ),
           
-          #Statistics report
+          column(
+            width = 4,
+            wellPanel(
+              title = "Visualization Options",
+              #Custom y-axis
+              sliderInput(
+                inputId = "y_slider_rsratio",
+                label = "Custom Y-Axis Slider:",
+                min = 0, max = 15,
+                value = c(0, 10)
+              )
+            )
+          )
+        ),
+        
+        #Upload options
+        fluidRow(
+          column(
+            width = 12,
+            wellPanel(
+              title = "Upload Options",
+              #Upload ZIP file function
+              fileInput("zip_rsratio", "Upload ZIP file:", accept = ".zip"),
+              
+              #Radio buttons to choose the upload option
+              radioButtons(
+                "renaming_option_rsratio",
+                "Choose an upload option:",
+                choices = c("Without Renaming", "With Renaming"),
+                selected = "Without Renaming"
+              ),
+              # Add a text input for users to specify new filenames
+              textInput("new_filenames_rsratio", "New Filenames (comma-separated):", ""),
+              
+              #Upload button
+              actionButton("upload_rsratio", "Upload Data")
+            )
+          )
+        ),
+        
+        #Statistics report
+        wellPanel(
+          title = "Statistics Report",
           verbatimTextOutput("stats_rsratio")
+        )
   )
   
 }

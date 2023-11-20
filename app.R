@@ -13,6 +13,7 @@ library(RColorBrewer)
 library(shinyFiles)
 library(visNetwork)
 library(htmlwidgets)
+library(e1071)
 
 # Laden van de UI- en serverlogica voor elk tabblad
 source("ui/general_info_ui.R")

@@ -31,7 +31,19 @@ read_rs_ratio_data <- function(path) {
     
     i <- tail(unlist(gregexpr("[0-9]", file)), n = 1)
     j <- unlist(gregexpr("[0-9]", file))[1]
+    
     Sample <- gsub("Data/R-S_Ratio/", "", substr(file, 1, i))
+    
+    # Hier controleren we of er een underscore aanwezig is in de Sample-variabele
+    if (grepl("_", Sample)) {
+      # Split Sample in Sample en Timepoint
+      sample_parts <- strsplit(Sample, "_")[[1]]
+      Sample <- sample_parts[1]
+      Timepoint <- sample_parts[2]
+    } else {
+      Timepoint <- NA
+    }
+    
     Group <- gsub("Data/R-S_Ratio/", "", substr(file, 1, j - 1))
     Immunoglobulin <- switch(
       substr(file, i + 1, i + 1),
@@ -41,12 +53,18 @@ read_rs_ratio_data <- function(path) {
       "_" = "Naive IgM"
     )
     df_add <- df_add %>%
-      mutate(Sample = Sample, Group = Group, Immunoglobulin = Immunoglobulin, Filtering = row.names(df_add))
+      mutate(Sample = Sample, Timepoint = Timepoint, Group = Group, Immunoglobulin = Immunoglobulin, Filtering = row.names(df_add))
     
     df_ratio <- bind_rows(df_ratio, df_add)
   }
   
   df_ratio <- df_ratio %>%
-    select(Sample, Group, Immunoglobulin, Filtering, everything())
+    select(Sample, Timepoint, Group, Immunoglobulin, Filtering, everything())
+  
+  df_ratio$`FR R/S (ratio)` <- as.numeric(df_ratio$`FR R/S (ratio)`)
+  df_ratio$`CDR R/S (ratio)` <- as.numeric(df_ratio$`CDR R/S (ratio)`)
   return(df_ratio)
 }
+
+df_ratio <- read_rs_ratio_data("Data/R-S_Ratio")
+
