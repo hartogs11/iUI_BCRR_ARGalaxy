@@ -1,61 +1,46 @@
+# Load required module
 source("modules/vdj_module.R")
 
+# Read V(D)J recombination data
 df_recombination <- read_vdj_recombination_data("Data/VDJ_genes_timepoints/ClonalityComplete.txt")
 
-#Make sample and group name lists
-sample_names_vdj <- unique(df_recombination$Sample)
-group_names_vdj <- unique(df_recombination$Group)
-max_freq <- max(df_recombination$Freq)
+# Make max freq and max count values
+max_freq <- max(df_recombination$Freq_VDJ)
+max_count <- max(df_recombination$Count)
 
-
-
+# Define the Shiny server function
 vdj_server <- function(input, output, session) {
-  #Makes the select all, none buttons
-  observe({
-    updateCheckboxGroupButtons(
-      session,"group_vdj", choices = group_names_vdj,
-      selected = if(input$all_groups_vdj) group_names_vdj
-    )
-    updateCheckboxGroupButtons(
-      session, "sample_vdj", choices = sample_names_vdj,
-      selected = if(input$all_samples_vdj) sample_names_vdj
-    )
+  # Reactive function to filter data based on user input
+  plotData_vdj <- reactive({
+    df_filtered <- df_recombination %>%
+      filter(Sample == input$sample_vdj,
+             Freq_VDJ > input$freq_vdj,
+             Count > input$count_vdj)
+    
+    # Arrange the levels of Top.V.Gene, Top.D.Gene, Top.J.Gene based on frequency
+    df_filtered$Top.V.Gene <- factor(df_filtered$Top.V.Gene, levels = unique(df_filtered$Top.V.Gene[order(-df_filtered$Freq_VDJ)]))
+    df_filtered$Top.D.Gene <- factor(df_filtered$Top.D.Gene, levels = unique(df_filtered$Top.D.Gene[order(-df_filtered$Freq_VDJ)]))
+    df_filtered$Top.J.Gene <- factor(df_filtered$Top.J.Gene, levels = unique(df_filtered$Top.J.Gene[order(-df_filtered$Freq_VDJ)]))
+    return(df_filtered)
   })
   
-  
-  output$VDJ <- renderVisNetwork({
-    df_recombination <- df_recombination[df_recombination$Freq > 20, ]
-    nodes <- unique(c(df_recombination$Top.V.Gene, df_recombination$Top.D.Gene, df_recombination$Top.J.Gene))
+  # Render the V(D)J recombination plot
+  output$VDJ <- renderPlot({
+    df_filtered <- plotData_vdj()
     
-    # Create nodes
-    nodes_df <- data.frame(id = nodes, label = nodes)
-    
-    # Create edges
-    edges_df <- data.frame(from = df_recombination$Top.V.Gene, to = df_recombination$Top.D.Gene, arrows = "to", value = df_recombination$Freq) %>%
-      rbind(data.frame(from = df_recombination$Top.D.Gene, to = df_recombination$Top.J.Gene, arrows = "to", value = df_recombination$Freq))
-    
-    visNetwork(nodes_df, edges_df, width = "100%") %>%
-      visEdges(smooth = TRUE) %>%
-      visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
-      visInteraction(navigationButtons = TRUE)
+    ggplot(df_filtered, aes(axis1 = Top.V.Gene, axis2 = Top.D.Gene, axis3 = Top.J.Gene, y = Freq_VDJ)) +
+      geom_alluvium(aes(fill = Alpha), width = 0.2) +
+      geom_stratum() +
+      geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+      theme_minimal() +
+      ggtitle("V(D)J recombination viewer") +
+      theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()
+      )
   })
-  
-  output$stats_vdj <- renderPrint({
-    stats <- df_recombination %>%
-      group_by(Group, Sample) %>%
-      summarize(
-        Median = median(Freq),
-        Mean = mean(Freq),
-        SD = sd(Freq),
-        Variance = var(Freq),
-        Q1 = quantile(Freq, 0.25),
-        Q3 = quantile(Freq, 0.75)
-      ) %>%
-      ungroup()
-    
-    cat("Detailed Statistics for the selected data:\n")
-    print(stats)
-  })
-  
 }
-

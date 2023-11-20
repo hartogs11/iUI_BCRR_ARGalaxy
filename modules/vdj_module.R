@@ -1,43 +1,47 @@
+# Function to read and process VDJ recombination data
 read_vdj_recombination_data <- function(file) {
-  # Read input file
   df_vdjvar <- read.delim(file)
-  df_vdjvar <- select(df_vdjvar, 1,3,4,5,63)
-  df_inputvdj <- df_vdjvar
-  df_inputvdj$Group = sub("^([[:alpha:]]*).*", "\\1", df_inputvdj$Sample)
+  df_vdjvar <- select(df_vdjvar, 1, 3, 4, 5, 63)
   
-  #dataframe for vdj recombination plot
-  df_vdjvar <- df_vdjvar %>% separate(Sample, c("Sample", "Timepoint"))
-  df_vdjvar$Sample <- gsub("g", "",as.character(df_vdjvar$Sample))
-  df_vdjvar$Timepoint <- gsub("g", "",as.character(df_vdjvar$Timepoint))
-  df_vdjvar$Group = sub("^([[:alpha:]]*).*", "\\1", df_vdjvar$Sample)
+  df_vdjvar <- separate(df_vdjvar, Sample, into = c("Sample", "Timepoint"), sep = "_")
+  
+  df_vdjvar$Sample <- gsub("g", "", as.character(df_vdjvar$Sample))
+  df_vdjvar$Timepoint <- gsub("g", "", as.character(df_vdjvar$Timepoint))
+  
   df_vdjvar <- na.omit(df_vdjvar)
-  df_percentage <- data.frame(table(df_vdjvar$Sample))
-  col_names <- c("Sample", "Total_count")
-  colnames(df_percentage) <- col_names
-  df_vdjvar <- merge(df_vdjvar, df_percentage, by = "Sample")
   
-  df_occurence <- data.frame(table(df_vdjvar$Top.V.Gene, df_vdjvar$Top.D.Gene, df_vdjvar$Top.J.Gene))
-  col_names <- c("Top.V.Gene", "Top.D.Gene", "Top.J.Gene", "Count")
-  colnames(df_occurence) <- col_names
-  df_occurence <- df_occurence[(df_occurence$Count != 0),]
-  df_occurence <- df_occurence[order(-df_occurence$Count),]
-  df_occurence <- merge(df_occurence, df_vdjvar)
-  df_occurence$ID <- NULL
-  df_occurence <- df_occurence %>%
-    mutate(Freq = round(Count/Total_count*100))
-  df_occurence <- unique(df_occurence)
+  df_occurrence_VDJ <- data.frame(table(df_vdjvar$Sample, df_vdjvar$Top.V.Gene, df_vdjvar$Top.D.Gene, df_vdjvar$Top.J.Gene))
+  col_names_VDJ <- c("Sample", "Top.V.Gene", "Top.D.Gene", "Top.J.Gene", "Count")
+  colnames(df_occurrence_VDJ) <- col_names_VDJ
+  df_occurrence_VDJ <- df_occurrence_VDJ[df_occurrence_VDJ$Count != 0, ]
+  df_occurrence_VDJ <- df_occurrence_VDJ[order(-df_occurrence_VDJ$Count), ]
   
-  #Make sample and group name lists
-  sample_names_vdj <- unique(df_vdjvar$Sample)
-  group_names_vdj <- unique(df_vdjvar$Group)
+  df_total_count_VDJ <- df_occurrence_VDJ %>%
+    group_by(Sample, Top.V.Gene, Top.D.Gene) %>%
+    summarise(Total_count_VDJ = sum(Count), .groups = 'drop') %>%
+    ungroup()
   
-  return(df_occurence)
+  df_occurrence_VDJ <- df_occurrence_VDJ %>%
+    left_join(df_total_count_VDJ, by = c("Sample", "Top.V.Gene", "Top.D.Gene")) %>%
+    mutate(Freq_VDJ = round(Count / Total_count_VDJ * 100))
+  
+  df_occurrence_VDJ$Alpha <- df_occurrence_VDJ$Freq_VDJ / 100
+  
+  # Convert factor columns to character
+  df_occurrence_VDJ$Top.V.Gene <- as.character(df_occurrence_VDJ$Top.V.Gene)
+  df_occurrence_VDJ$Top.D.Gene <- as.character(df_occurrence_VDJ$Top.D.Gene)
+  df_occurrence_VDJ$Top.J.Gene <- as.character(df_occurrence_VDJ$Top.J.Gene)
+  
+  return(df_occurrence_VDJ)
 }
 
-df_recombination <- read_vdj_recombination_data("Data/VDJ_genes_timepoints/ClonalityComplete.txt")
 
-# Maak een subdataframe voor alleen sample AIH1
-df_AIH1 <- df_recombination[df_recombination$Sample == "AIH1", ]
+
+
+
+
+
+
 
 
 

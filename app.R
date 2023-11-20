@@ -11,7 +11,6 @@ library(ggplot2)
 library(ggalluvial)
 library(RColorBrewer)
 library(shinyFiles)
-library(visNetwork)
 library(htmlwidgets)
 library(e1071)
 
@@ -46,7 +45,7 @@ shinyApp(
         tabItem(tabName = "vdj",
                 vdj_ui()
         )
-      )
+      ) 
     )
   ),
   server = function(input, output, session) {

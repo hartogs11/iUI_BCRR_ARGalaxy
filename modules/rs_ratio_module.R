@@ -66,5 +66,4 @@ read_rs_ratio_data <- function(path) {
   return(df_ratio)
 }
 
-df_ratio <- read_rs_ratio_data("Data/R-S_Ratio")
 
