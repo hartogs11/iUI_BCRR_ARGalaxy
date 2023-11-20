@@ -37,9 +37,6 @@ shinyApp(
     ),
     dashboardBody(
       tabItems(
-        tabItem(tabName = "info",
-                general_info_ui()
-        ),
         tabItem(tabName = "mutfreq",
                 mutfreq_ui()
         ),
