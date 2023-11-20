@@ -50,7 +50,6 @@ shinyApp(
     )
   ),
   server = function(input, output, session) {
-    general_info_server(input, output, session)
     mutfreq_server(input, output, session)
     rsratio_server(input, output, session)
     vdj_server(input, output, session)
