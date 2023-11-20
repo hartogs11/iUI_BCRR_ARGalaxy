@@ -63,6 +63,7 @@ This project utilized various R packages for different purposes. Here is a list 
 - **dplyr**: dplyr is used for data manipulation and data frame filtering.
 - **plotly**: plotly is used to create interactive plots and visualizations.
 - **readr**: readr is used to import and read data from various file formats.
+- **e1071**: e1071 is used to generate the skewness and kurtosis statistics. 
 - **ggplot2**: ggplot2 is used for data visualization and chart production.
 - **shinyFiles**: shinyFiles is used for file upload functionality in the Shiny app.
 - **RColorBrewer**: RColorBrewer is used to change the colors of the visualisation and to import color-blind friendly color palettes.
