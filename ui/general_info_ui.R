@@ -2,18 +2,54 @@ general_info_ui <- function() {
   tabItem(
     tabName = "info",
     fluidRow(
-      h2("Welcome to the interactive analysis of B-cell receptor repertoire", align = "center"),
-      h3("-an extending functionality of ARGalaxy-", align = "center"),
-      p("ARGalaxy stands for Antigen Receptor Galaxy. It is a web-based tool, which automates the analysis and visual display of data from sequencing of the B-cell receptor repertoires. A main technical aspect of ARGalaxy is the creation of multiple reports that present and visualize immune repertoire and somatic hypermutation information of input samples. In the current ARGalaxy, these reports are created as static pages and images which are sufficient for analyzing a few samples. However, when comparing a large number of samples, such as more than 10 samples, the static user interface (UI) suffers a clear limitation in viewing and navigating through complex figures and tracking each sample."),
+      h2("Welcome to the Interactive B-Cell Receptor Repertoire Analysis", align = "center"),
+      h3("Extending the Functionality of Antigen Receptor Galaxy", align = "center"),
+      p("This Shiny application offers an interactive interface for in-depth analysis of B-cell receptor repertoires. It extends the capabilities of Antigen Receptor Galaxy (ARGalaxy) and facilitates exploration of critical biological datasets related to V(D)J recombination, R-S ratio, and somatic hypermutation frequency."),
     ),
     fluidRow(
       box(
-        title = ("Somatic Hypermutation Frequency"),
-        p("This is an interactive graph of the somatic hypermutation frequency. Currently in ARGalaxy, the user can only view one sample at a time, so for this visualization was the main goal to visualize all the desired samples of the user. The user can choose which immunoglobulin they want (including memory and naive IgM). The user can also choose which groups and samples are being shown. You can zoom in and zoom out in the visualization and when the user has the desired result, the visualization can be downloaded as a png file."),
+        title = "Somatic Hypermutation Frequency Visualization",
+        p("Interactively explore the somatic hypermutation frequency across multiple samples. Choose the immunoglobulin type, select groups and samples, and explore timepoints. The visualization includes filter options, such as color palette selection, X-axis display preferences, and a custom Y-axis slider for adjusting the range. Upload options allow users to bring their own data or use the default dataset."),
+        p("The main panel displays a violin plot representing somatic hypermutation frequency. A detailed statistics report is available, including median, mean, standard deviation, variance, count, quartiles, ANOVA results, and post-hoc Tukey HSD tests."),
+        p("Data Source: 'ClonalityComplete.txt' in 'Data/VDJ_genes_timepoints' directory.")
       ),
       box(
-        title = ("R-S ratio of FR and CDR Frequency"),
-        p("This is an interactive graph of the R-S ratio of FR and CDR Frequency. Currently in ARGalaxy, this visualization isn't an option because of the one sample viewing. There is no plot or graph, but only a table with 2 values, one of FR and one of CDR. The main goal for this visualization was to create one plot where both FR and CDR values are being visualized of all the desired samples of the user. The user can choose which immunoglobulin they want (including memory and naive IgM). The user can also choose which groups and samples are being shown. The used filtering options depend on the user's filtering options in ARGalaxy. The user can also choose which data should be displayed on the x-axis. When groups are selected, a violin plot is shown. The user can choose the kind of violin plot (overlayed, splitted, and grouped). When samples are selected, a dot plot is shown. You can zoom in and zoom out in the visualization and when the user has the desired result, the visualization can be downloaded as a png file.")
+        title = "R-S Ratio Visualization",
+        p("Interactively explore the R-S ratio of FR and CDR frequency. Choose immunoglobulin types, select groups and samples, and utilize filtering options. Customize the color palette, overlayed or grouped boxplots, and adjust the Y-axis range. Upload options allow users to provide their own data."),
+        p("The main panel displays scatter plots and boxplots representing the R-S ratio in the FR1 and CDR3 regions. A detailed statistics report includes median, mean, standard deviation, variance, count, quartiles, skewness, and kurtosis."),
+        p("Data Source: 'shm_overview.txt' files in 'Data/R-S_Ratio' directory.")
+      )
+    ),
+    fluidRow(
+      box(
+        title = "V(D)J Recombination Visualization",
+        p("Explore an interactive V(D)J recombination viewer. Choose a specific sample and set minimal frequency and counts for filtering. The main panel provides an interactive display of V(D)J recombination patterns based on selected filter options."),
+        p("Data Source: `ClonalityComplete.txt` file in the `Data/VDJ_genes_timepoints` directory.")
+      ),
+      box(
+        title = "Top V(D)J Recombination Visualization",
+        p("Explore the top V(D)J gene segment combinations for a specific sample. Choose the number of best gene segment combinations to display. The main panel provides an interactive display of the top V(D)J recombination patterns."),
+        p("Data Source: `ClonalityComplete.txt` file in the `Data/VDJ_genes_timepoints` directory.")
+      )
+    ),
+    fluidRow(
+      box(
+        title = "Folder Structure",
+        p("The project follows a structured folder organization, with separate directories for 'ui', 'server', and 'modules'. Each directory contains specific files for different components and functionalities of the Shiny application.")
+      ),
+      box(
+        title = "R Packages",
+        p("The project utilizes various R packages for different purposes, including 'shiny', 'shinydashboard', 'shinyWidgets', 'tidyverse', 'dplyr', 'plotly', 'readr', 'e1071', 'ggplot2', 'shinyFiles', and 'RColorBrewer'. These packages contribute to the development, visualization, and functionality of the Shiny application.")
+      )
+    ),
+    fluidRow(
+      box(
+        title = "Usage",
+        p("To use the application locally, make sure you have the required R packages installed. Run the 'app.R' file to start the Shiny application, and follow the instructions within the application to explore and analyze different visualizations.")
+      ),
+      box(
+        title = "User Manual",
+        p("Refer to the user manual sections for each visualization component ('Somatic Hypermutation Frequency Visualization', 'R-S Ratio Visualization', 'V(D)J Recombination Visualization', 'Top V(D)J Recombination Visualization') for detailed instructions on filter options, visualization customization, and other functionalities.")
       )
     )
   )

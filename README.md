@@ -26,11 +26,13 @@ The project has the following folder structure:
   - `mutfreq_ui.R`: UI for SHM Frequency.
   - `rsratio_ui.R`: UI for R-S Ratio.
   - `vdj_ui.R`: UI for V(D)J Recombination Viewer.
+  - `top_vdj_uir.R`: UI for top V(D)J Recombination Viewer.
 - `server/`: Contains server logic for corresponding UI components.
   - `general_info_server.R`: Server logic for General Information.
   - `mutfreq_server.R`: Server logic for SHM Frequency.
   - `rsratio_server.R`: Server logic for R-S Ratio.
   - `vdj_server.R`: Server logic for V(D)J Recombination Viewer.
+  - `top_vdj_server.R`: Server logic for top V(D)J Recombination Viewer.
 - `modules/`: Contains module files.
   - `file_upload_module.R`: Module for reading and processing uploaded data.
   - `mutation_frequency_module.R`: Module for mutation frequency data preprocessing.
@@ -39,7 +41,7 @@ The project has the following folder structure:
 
 ## Data and Files
 
-- The VDJ visualization uses data from the file `ClonalityComplete.txt`.
+- The VDJ visualizations use data from the file `ClonalityComplete.txt` in the `Data/VDJ_genes_timepoints` directory. 
 
 - The R-S Ratio visualization uses data from the `Data/R-S_Ratio` directory. There is also an upload button to upload new data in a zip file.
 
@@ -144,4 +146,16 @@ The `vdj_ui.R` and `vdj_server.R` files handle the user interface and server log
 
 #### Visualization
 The main panel displays an interactive V(D)J recombination viewer. The plot can be customized based on the chosen filter options.
+
+### Top V(D)J Recombination Visualization
+The `top_vdj_ui.R` and `top_vdj_server.R` files handle the user interface and server logic for the V(D)J Recombination Visualization. This section provides a user manual for interacting with this specific module.
+
+#### Filter Options
+- **Select Sample:** Choose a specific sample for analysis.
+- **Top Genes:** Set amount of the best V(D)J gene segment combinations of a specific samples.
+
+#### Visualization
+The main panel displays an interactive  top V(D)J gene segments recombination viewer. The plot can be customized based on the chosen filter options.
+
+
 

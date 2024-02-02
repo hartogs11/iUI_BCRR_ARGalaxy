@@ -35,12 +35,6 @@ mutfreq_ui <- function() {
         justified = TRUE
       ),
       
-      checkboxInput(
-        inputId = "all_samples_mutfreq",
-        label = "Select All/None samples",
-        value = TRUE
-      ),
-      
       checkboxGroupButtons(
         inputId = "timepoint_mutfreq",
         label = "Timepoints to show:",
@@ -48,12 +42,6 @@ mutfreq_ui <- function() {
         selected = "none",
         direction = "vertical",
         justified = TRUE
-      ),
-      
-      checkboxInput(
-        inputId = "all_timepoints_mutfreq",
-        label = "Select All/None samples",
-        value = FALSE
       ),
       
       circle = "TRUE",

@@ -16,24 +16,35 @@ uploaded_data <- reactiveVal(NULL)
 #Initialize a reactiveVal to track the filter options
 filter_options <- reactiveVal(NULL)
 
+# Reactive value for storing selected samples
+selected_samples <- reactiveVal(NULL)
+
 mutfreq_server <- function(input, output, session) {
-  #Makes the select all, none buttons
+  # Makes the select all, none buttons
   observe({
     updateCheckboxGroupButtons(
-      session,"group_mutfreq", choices = Group_names_mutfreq,
-      selected = if(input$all_groups_mutfreq) Group_names_mutfreq
+      session, "group_mutfreq", choices = Group_names_mutfreq,
+      selected = if (input$all_groups_mutfreq) Group_names_mutfreq
     )
     
-    updateCheckboxGroupButtons(
-      session, "sample_mutfreq", choices = Sample_names_mutfreq,
-      selected = if(input$all_samples_mutfreq) Sample_names_mutfreq
-    )
-    
-    updateCheckboxGroupButtons(
-      session, "timepoint_mutfreq", choices = Timepoint_names_mutfreq,
-      selected = if(input$all_timepoints_mutfreq) Timepoint_names_mutfreq
-    )
+    observeEvent(input$group_mutfreq, {
+      # Filter available samples based on selected groups
+      filtered_samples <- df_mut_freq %>%
+        filter(Group %in% input$group_mutfreq)
+      
+      Sample_names_mutfreq <- unique(filtered_samples$Sample)
+      Timepoint_names_mutfreq <- unique(filtered_samples$Timepoint)
+      
+      # Update checkboxGroupButtons for sample with unique samples from filtered samples
+      updateCheckboxGroupButtons(session, "sample_mutfreq", choices = Sample_names_mutfreq, selected = Sample_names_mutfreq)
+      
+      # Update selectInput for timepoint with unique timepoints from filtered samples
+      updateCheckboxGroupButtons(session, "timepoint_mutfreq", choices = Timepoint_names_mutfreq, selected = Timepoint_names_mutfreq)
+      
+      
+    })
   })
+  
   
   # Upload button click handler
   observeEvent(input$upload_mutfreq, {
@@ -53,7 +64,7 @@ mutfreq_server <- function(input, output, session) {
         timepoint = unique(df_uploaded$Timepoint)
       ))
       
-      # Clear the upload fields
+      # Clear the upload fields   
       updateRadioButtons(session, "renaming_option_mutfreq", selected = "Without Renaming")
       updateTextInput(session, "new_filenames_mutfreq", value = "")
     }
@@ -249,6 +260,9 @@ mutfreq_server <- function(input, output, session) {
   })
   
   # Statistics Report
+  
+  
+  # Modifying the statistics output
   output$stats_mutfreq <- renderPrint({
     dataForStats <- plotData_mutfreq()
     
@@ -261,48 +275,55 @@ mutfreq_server <- function(input, output, session) {
                               "Samples" = "Sample",
                               "Timepoints" = "Timepoint")
     
-    stats <- dataForStats %>%
-      group_by(!!sym(x_axis_variable), Immunoglobulin) %>%
-      summarize(
-        Median = median(percentage_mutations),
-        Mean = mean(percentage_mutations),
-        SD = sd(percentage_mutations),
-        Variance = var(percentage_mutations),
-        Count = n_distinct(Sample),
-        Q1 = quantile(percentage_mutations, 0.25),
-        Q3 = quantile(percentage_mutations, 0.75)
-      ) %>%
-      ungroup()
-    
-    cat("Detailed Statistics for the selected data:\n")
-    print(stats)
-    
-    # Perform ANOVA
-    anova_formula <- as.formula(paste("percentage_mutations ~ ", x_axis_variable))
-    anova_results <- aov(anova_formula, data = dataForStats)
-    cat("\nANOVA results:\n")
-    print(summary(anova_results))
-    
-    # Check for significance in ANOVA
-    p_value_anova <- summary(anova_results)[[1]]$`Pr(>F)`[1]
-    
-    # Check if ANOVA is significant
-    if (p_value_anova < 0.05) {
-      cat("\n p value of ANOVA test < 0.05\n")
-      cat("Alternative Hypothesis (Ha): At least one pair of groups has a significantly different mean.\n")
-      cat("\nPost-hoc Tests (Tukey HSD):\n")
-      posthoc_anova <- TukeyHSD(anova_results)
-      print(posthoc_anova)
-      
+    # Check if at least two unique x-axis variables are selected
+    if (length(unique(dataForStats[[x_axis_variable]])) < 2) {
+      cat("Select at least two x-axis variables for statistics.")
     } else {
-      cat("\n p value of ANOVA test > 0.05\n")
-      cat("Null Hypothesis (H0): There is no significant difference between the means of any two groups.")
+      stats <- dataForStats %>%
+        group_by(!!sym(x_axis_variable), Immunoglobulin) %>%
+        summarize(
+          Median = median(percentage_mutations),
+          Mean = mean(percentage_mutations),
+          SD = sd(percentage_mutations),
+          Variance = var(percentage_mutations),
+          Count = n_distinct(Sample),
+          Q1 = quantile(percentage_mutations, 0.25),
+          Q3 = quantile(percentage_mutations, 0.75)
+        ) %>%
+        ungroup()
+      
+      cat("Detailed Statistics for the selected data:\n")
+      print(stats)
+      
+      # Perform ANOVA
+      anova_formula <- as.formula(paste("percentage_mutations ~ ", x_axis_variable))
+      anova_results <- aov(anova_formula, data = dataForStats)
+      cat("\nANOVA results:\n")
+      print(summary(anova_results))
+      
+      # Check for significance in ANOVA
+      p_value_anova <- summary(anova_results)[[1]]$`Pr(>F)`[1]
+      
+      # Check if ANOVA is significant
+      if (p_value_anova < 0.05) {
+        cat("\n p value of ANOVA test < 0.05\n")
+        cat("Alternative Hypothesis (Ha): At least one pair of groups has a significantly different mean.\n")
+        cat("\nPost-hoc Tests (Tukey HSD):\n")
+        posthoc_anova <- TukeyHSD(anova_results)
+        print(posthoc_anova)
+        
+      } else {
+        cat("\n p value of ANOVA test > 0.05\n")
+        cat("Null Hypothesis (H0): There is no significant difference between the means of any two groups.")
+      }
     }
+    
+    
   })
+  
   
   
 }
 
 
 
-  

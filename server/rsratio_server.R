@@ -23,14 +23,17 @@ rsratio_server <- function(input, output, session) {
       session, "group_rsrat", choices = Group_names_ratio,
       selected = if (input$all_groups_rsrat) Group_names_ratio
     )
-    updateCheckboxGroupButtons(
-      session, "sample_rsrat", choices = sample_names_ratio,
-      selected = if (input$all_samples_rsrat) sample_names_ratio
-    )
-    updateCheckboxGroupButtons(
-      session, "filtering_rsrat", choices = Filtering_names_ratio,
-      selected = if (input$all_filtering_rsrat) Filtering_names_ratio
-    )
+    
+    observeEvent(input$group_rsrat, {
+      # Filter available samples based on selected groups
+      filtered_samples <- df_ratio %>%
+        filter(Group %in% input$group_rsrat)
+      
+      sample_names_ratio <- unique(filtered_samples$Sample)
+      
+      # Update checkboxGroupButtons for sample with unique samples from filtered samples
+      updateCheckboxGroupButtons(session, "sample_rsrat", choices = sample_names_ratio, selected = sample_names_ratio)
+    })
   })
   
   # Upload button click handler

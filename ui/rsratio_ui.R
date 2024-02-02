@@ -32,12 +32,6 @@ rsratio_ui <- function() {
               justified = TRUE
             ),
             
-            checkboxInput(
-              inputId = "all_samples_rsrat",
-              label = "Select All/None samples",
-              value = TRUE
-            ),
-            
             checkboxGroupButtons(
               inputId = "filtering_rsrat",
               label = "Used filtering:",
@@ -45,12 +39,6 @@ rsratio_ui <- function() {
               selected = c("all", "un"),
               direction = "vertical",
               justified = TRUE
-            ),
-            
-            checkboxInput(
-              inputId = "all_filtering_rsrat",
-              label = "Select All/None filtering",
-              value = FALSE
             ),
             
             circle = TRUE,
